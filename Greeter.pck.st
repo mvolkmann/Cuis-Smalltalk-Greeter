@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6991] on 25 January 2025 at 8:08:46 am'!
+'From Cuis7.3 [latest update: #6991] on 25 January 2025 at 8:11:45 am'!
 'Description '!
-!provides: 'Greeter' 1 2!
+!provides: 'Greeter' 1 3!
 SystemOrganization addCategory: #Greeter!
 
 
@@ -67,7 +67,7 @@ initialExtent
 	^ 0@0
 ! !
 
-!Greeter class methodsFor: 'as yet unclassified' stamp: 'RMV 1/25/2025 07:47:38'!
+!Greeter class methodsFor: 'as yet unclassified' stamp: 'RMV 1/25/2025 08:11:42'!
 open
 	| extent window |
 	
@@ -75,7 +75,7 @@ open
 	window openInWorld.
 	
 	"Set window size to the smallest size that contains its submorphs.
-	This must done AFTER the window is opened."
+	This must be done AFTER the window is opened."
 	extent := window layoutMorph minimumExtent.
 	window morphExtent: 300 @ extent y.! !
 
