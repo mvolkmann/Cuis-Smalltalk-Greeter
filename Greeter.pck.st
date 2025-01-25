@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6991] on 25 January 2025 at 8:11:45 am'!
+'From Cuis7.3 [latest update: #6991] on 25 January 2025 at 8:24:37 am'!
 'Description '!
-!provides: 'Greeter' 1 3!
+!provides: 'Greeter' 1 4!
 SystemOrganization addCategory: #Greeter!
 
 
@@ -57,14 +57,6 @@ initialize
 	
 	"To left align all child morphs of column ...
 	column submorphs do: [ :morph | morph layoutSpec offAxisEdgeWeight: #leftOrTop ]."
-! !
-
-!Greeter methodsFor: 'GUI building' stamp: 'RMV 1/25/2025 07:51:01'!
-initialExtent
-	"Set the size of the window. This approach is good for windows with known size.
-	See the open method for sizing the window based on its contents."
-
-	^ 0@0
 ! !
 
 !Greeter class methodsFor: 'as yet unclassified' stamp: 'RMV 1/25/2025 08:11:42'!
