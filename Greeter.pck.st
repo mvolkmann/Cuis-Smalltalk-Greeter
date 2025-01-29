@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7012] on 28 January 2025 at 7:46:37 pm'!
+'From Cuis7.3 [latest update: #7012] on 28 January 2025 at 7:54:38 pm'!
 'Description '!
-!provides: 'Greeter' 1 8!
+!provides: 'Greeter' 1 9!
 SystemOrganization addCategory: #Greeter!
 
 
@@ -15,7 +15,7 @@ Greeter class
 	instanceVariableNames: ''!
 
 
-!Greeter methodsFor: 'initialization' stamp: 'RMV 1/28/2025 19:44:55'!
+!Greeter methodsFor: 'initialization' stamp: 'RMV 1/28/2025 19:54:30'!
 initialize
 	| ageInput ageRow column greetingLabel handleTab nameInput nameRow |
 	
@@ -28,7 +28,7 @@ initialize
 		
 		isTab := evt keyValue = 9.
 		isTab ifTrue: [
-			evt buttons = 8
+			evt buttons = 8 "shift key"
 				ifTrue: [ evt hand keyboardFocusPrevious ]
 				ifFalse: [ evt hand keyboardFocusNext ]
 		].
