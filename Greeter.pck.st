@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7041] on 30 January 2025 at 3:46:08 pm'!
+'From Cuis7.3 [latest update: #7041] on 30 January 2025 at 3:53:32 pm'!
 'Description '!
-!provides: 'Greeter' 1 23!
+!provides: 'Greeter' 1 24!
 SystemOrganization addCategory: #Greeter!
 
 
@@ -35,11 +35,12 @@ InnerTextNoTabMorph class
 	instanceVariableNames: ''!
 
 
-!TextInputMorph methodsFor: 'as yet unclassified' stamp: 'RMV 1/30/2025 15:46:04'!
+!TextInputMorph methodsFor: 'as yet unclassified' stamp: 'RMV 1/30/2025 15:50:48'!
 initialize
 
 	super initialize.
 	
+	"Process tab key events."
 	self keystrokeAction: [ :evt |
 		evt keyValue = 9 ifTrue: [ "tab key"
 			evt buttons = 8 "shift key"
@@ -48,16 +49,20 @@ initialize
 		]
 	].! !
 
-!TextInputMorph methodsFor: 'as yet unclassified' stamp: 'RMV 1/30/2025 15:06:01'!
+!TextInputMorph methodsFor: 'as yet unclassified' stamp: 'RMV 1/30/2025 15:52:11'!
 innerMorphClass
+	"This method in TextModelMorph returns InnterTextMorph.
+	Here we want to use a subclass of that which avoids processing tab key events."
+	
 	^InnerTextNoTabMorph! !
 
-!TextInputMorph methodsFor: 'as yet unclassified' stamp: 'RMV 1/30/2025 15:44:24'!
+!TextInputMorph methodsFor: 'as yet unclassified' stamp: 'RMV 1/30/2025 15:52:52'!
 onChange: aBlock
+	"Set a block to evaluate every time the contents changes."
 
 	self innerTextMorph onChange: aBlock! !
 
-!Greeter methodsFor: 'initialization' stamp: 'RMV 1/30/2025 15:42:13'!
+!Greeter methodsFor: 'initialization' stamp: 'RMV 1/30/2025 15:53:27'!
 initialize
 	| ageInput ageRow column greetingLabel nameInput nameRow |
 	
@@ -70,10 +75,7 @@ initialize
 	nameInput := TextInputMorph withModel: (TextModel withText: '').
 	nameInput emptyTextDisplayMessage: 'Enter your name'.
 	
-	"Update greetingLabel on any keystroke in nameInput."
-	"TODO: Change this to run the block on any change,
-	not individual keystrokes, because TextInputMorph initialize
-	needs to listen to the keystrokes!!"
+	"Update greetingLabel every time the contents of nameInput changes."
 	nameInput onChange: [
 		| name |
 		
@@ -142,13 +144,17 @@ worldMenuOptions
 		} asDictionary
 	}`! !
 
-!InnerTextNoTabMorph methodsFor: 'as yet unclassified' stamp: 'RMV 1/30/2025 15:42:37'!
+!InnerTextNoTabMorph methodsFor: 'as yet unclassified' stamp: 'RMV 1/30/2025 15:52:45'!
 onChange: aBlock
+	"Set a block to evaluate every time the contents changes."
 
 	changeBlock := aBlock! !
 
-!InnerTextNoTabMorph methodsFor: 'as yet unclassified' stamp: 'RMV 1/30/2025 15:41:24'!
+!InnerTextNoTabMorph methodsFor: 'as yet unclassified' stamp: 'RMV 1/30/2025 15:50:25'!
 processKeystrokeEvent: evt
+	"This was copied from the same method in InnerTextMorph
+	and was modified to not process tab key events
+	so they can be used to move focus to another morph."
 
 	(acceptOn = #enter and: [evt isReturnKey]) ifTrue: [^ self acceptContents].
 
