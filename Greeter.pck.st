@@ -1,8 +1,18 @@
-'From Cuis7.3 [latest update: #7012] on 28 January 2025 at 7:54:38 pm'!
+'From Cuis7.3 [latest update: #7041] on 30 January 2025 at 3:46:08 pm'!
 'Description '!
-!provides: 'Greeter' 1 9!
+!provides: 'Greeter' 1 23!
 SystemOrganization addCategory: #Greeter!
 
+
+!classDefinition: #TextInputMorph category: #Greeter!
+TextModelMorph subclass: #TextInputMorph
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Greeter'!
+!classDefinition: 'TextInputMorph class' category: #Greeter!
+TextInputMorph class
+	instanceVariableNames: ''!
 
 !classDefinition: #Greeter category: #Greeter!
 SystemWindow subclass: #Greeter
@@ -14,48 +24,67 @@ SystemWindow subclass: #Greeter
 Greeter class
 	instanceVariableNames: ''!
 
+!classDefinition: #InnerTextNoTabMorph category: #Greeter!
+InnerTextMorph subclass: #InnerTextNoTabMorph
+	instanceVariableNames: 'changeBlock'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Greeter'!
+!classDefinition: 'InnerTextNoTabMorph class' category: #Greeter!
+InnerTextNoTabMorph class
+	instanceVariableNames: ''!
 
-!Greeter methodsFor: 'initialization' stamp: 'RMV 1/28/2025 19:54:30'!
+
+!TextInputMorph methodsFor: 'as yet unclassified' stamp: 'RMV 1/30/2025 15:46:04'!
 initialize
-	| ageInput ageRow column greetingLabel handleTab nameInput nameRow |
-	
+
 	super initialize.
 	
-	self setLabel: 'Greeter'.
-	
-	handleTab := [ :evt |
-		| isTab |
-		
-		isTab := evt keyValue = 9.
-		isTab ifTrue: [
+	self keystrokeAction: [ :evt |
+		evt keyValue = 9 ifTrue: [ "tab key"
 			evt buttons = 8 "shift key"
 				ifTrue: [ evt hand keyboardFocusPrevious ]
 				ifFalse: [ evt hand keyboardFocusNext ]
-		].
-		isTab.
-	].
+		]
+	].! !
 
+!TextInputMorph methodsFor: 'as yet unclassified' stamp: 'RMV 1/30/2025 15:06:01'!
+innerMorphClass
+	^InnerTextNoTabMorph! !
+
+!TextInputMorph methodsFor: 'as yet unclassified' stamp: 'RMV 1/30/2025 15:44:24'!
+onChange: aBlock
+
+	self innerTextMorph onChange: aBlock! !
+
+!Greeter methodsFor: 'initialization' stamp: 'RMV 1/30/2025 15:42:13'!
+initialize
+	| ageInput ageRow column greetingLabel nameInput nameRow |
+	
+	super initialize.
+		
+	self setLabel: 'Greeter'.
+	
 	greetingLabel := LabelMorph contents: ''.
 		
-	nameInput := TextModelMorph withModel: (TextModel withText: '').
+	nameInput := TextInputMorph withModel: (TextModel withText: '').
 	nameInput emptyTextDisplayMessage: 'Enter your name'.
 	
 	"Update greetingLabel on any keystroke in nameInput."
-	nameInput keystrokeAction: [ :evt |
+	"TODO: Change this to run the block on any change,
+	not individual keystrokes, because TextInputMorph initialize
+	needs to listen to the keystrokes!!"
+	nameInput onChange: [
 		| name |
 		
-		handleTab value: evt ::
-			ifFalse: [
-				name := nameInput text.
-				greetingLabel contents: (name isEmpty
-					ifTrue: ''
-					ifFalse: [ 'Hello ', name, '!!' ]
-				).
-			]
+		name := nameInput text.
+		greetingLabel contents: (name isEmpty
+			ifTrue: ''
+			ifFalse: [ 'Hello ', name, '!!' ]
+		).
 	].
 	
-	ageInput := TextModelMorph withModel: (TextModel withText: '').
-	ageInput keystrokeAction: handleTab.
+	ageInput := TextInputMorph withModel: (TextModel withText: '').
 
 	"Don't warn the user that changes have not been saved when the window is closed."
 	nameInput askBeforeDiscardingEdits: false.
@@ -113,28 +142,35 @@ worldMenuOptions
 		} asDictionary
 	}`! !
 
-!InnerTextMorph methodsFor: '*Greeter' stamp: 'RMV 1/28/2025 19:46:02'!
+!InnerTextNoTabMorph methodsFor: 'as yet unclassified' stamp: 'RMV 1/30/2025 15:42:37'!
+onChange: aBlock
+
+	changeBlock := aBlock! !
+
+!InnerTextNoTabMorph methodsFor: 'as yet unclassified' stamp: 'RMV 1/30/2025 15:41:24'!
 processKeystrokeEvent: evt
-	| action |
 
 	(acceptOn = #enter and: [evt isReturnKey]) ifTrue: [^ self acceptContents].
 
 	self pauseBlinking.
-	
+
 	"Return - check for special action"
-	evt isReturnKey ifTrue: [	
-		action := self crAction.
-		action ifNotNil: [ ^action value ] ].
-	
+	evt isReturnKey ifTrue: [
+		self crAction ifNotNil: [ :action |
+			^action value ]].
+
 	"Esc - check for special action"
 	evt isEsc ifTrue: [			
-		action := self escAction.
-		action ifNotNil: [ ^action value ] ].
-	
-	"The Greeter package added this check for the tab key."
-	evt keyValue = 9 ifFalse: [
-		self handleInteraction: [ editor processKeystrokeEvent: evt ]
+		self escAction ifNotNil: [ :action |
+			^action value ]].
+
+	evt keyValue = 9 ifFalse: [ "skips processing tab key"
+		self handleInteraction: [
+			editor processKeystrokeEvent: evt.
+			changeBlock ifNotNil: [ changeBlock value ].
+		].
 	].
+	
 	(owner is: #ScrollPane) ifTrue: [
 		owner scrollSelectionIntoView ].
 
