@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7043] on 31 January 2025 at 6:41:47 pm'!
+'From Cuis7.3 [latest update: #7044] on 1 February 2025 at 12:30:29 pm'!
 'Description '!
-!provides: 'Greeter' 1 25!
+!provides: 'Greeter' 1 26!
 SystemOrganization addCategory: #Greeter!
 
 
@@ -15,7 +15,7 @@ Greeter class
 	instanceVariableNames: ''!
 
 
-!Greeter methodsFor: 'initialization' stamp: 'RMV 1/31/2025 18:35:54'!
+!Greeter methodsFor: 'initialization' stamp: 'RMV 2/1/2025 12:29:57'!
 initialize
 	| ageInput ageRow column greetingLabel nameInput nameRow |
 	
@@ -26,7 +26,7 @@ initialize
 	greetingLabel := LabelMorph contents: ''.
 		
 	nameInput := TextModelMorph withModel: (TextModel withText: '').
-	nameInput scroller tabToFocus: false.
+	nameInput tabToFocus: true.
 	nameInput emptyTextDisplayMessage: 'Enter your name'.
 	
 	"Update greetingLabel every time the contents of nameInput changes."
@@ -41,7 +41,7 @@ initialize
 	].
 	
 	ageInput := TextModelMorph withModel: (TextModel withText: '').
-	ageInput scroller tabToFocus: false.
+	ageInput tabToFocus: true.
 
 	"Don't warn the user that changes have not been saved when the window is closed."
 	nameInput askBeforeDiscardingEdits: false.
