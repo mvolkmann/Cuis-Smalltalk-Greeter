@@ -1,18 +1,8 @@
-'From Cuis7.3 [latest update: #7041] on 30 January 2025 at 3:53:32 pm'!
+'From Cuis7.3 [latest update: #7043] on 31 January 2025 at 6:41:47 pm'!
 'Description '!
-!provides: 'Greeter' 1 24!
+!provides: 'Greeter' 1 25!
 SystemOrganization addCategory: #Greeter!
 
-
-!classDefinition: #TextInputMorph category: #Greeter!
-TextModelMorph subclass: #TextInputMorph
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Greeter'!
-!classDefinition: 'TextInputMorph class' category: #Greeter!
-TextInputMorph class
-	instanceVariableNames: ''!
 
 !classDefinition: #Greeter category: #Greeter!
 SystemWindow subclass: #Greeter
@@ -24,45 +14,8 @@ SystemWindow subclass: #Greeter
 Greeter class
 	instanceVariableNames: ''!
 
-!classDefinition: #InnerTextNoTabMorph category: #Greeter!
-InnerTextMorph subclass: #InnerTextNoTabMorph
-	instanceVariableNames: 'changeBlock'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Greeter'!
-!classDefinition: 'InnerTextNoTabMorph class' category: #Greeter!
-InnerTextNoTabMorph class
-	instanceVariableNames: ''!
 
-
-!TextInputMorph methodsFor: 'as yet unclassified' stamp: 'RMV 1/30/2025 15:50:48'!
-initialize
-
-	super initialize.
-	
-	"Process tab key events."
-	self keystrokeAction: [ :evt |
-		evt keyValue = 9 ifTrue: [ "tab key"
-			evt buttons = 8 "shift key"
-				ifTrue: [ evt hand keyboardFocusPrevious ]
-				ifFalse: [ evt hand keyboardFocusNext ]
-		]
-	].! !
-
-!TextInputMorph methodsFor: 'as yet unclassified' stamp: 'RMV 1/30/2025 15:52:11'!
-innerMorphClass
-	"This method in TextModelMorph returns InnterTextMorph.
-	Here we want to use a subclass of that which avoids processing tab key events."
-	
-	^InnerTextNoTabMorph! !
-
-!TextInputMorph methodsFor: 'as yet unclassified' stamp: 'RMV 1/30/2025 15:52:52'!
-onChange: aBlock
-	"Set a block to evaluate every time the contents changes."
-
-	self innerTextMorph onChange: aBlock! !
-
-!Greeter methodsFor: 'initialization' stamp: 'RMV 1/30/2025 15:53:27'!
+!Greeter methodsFor: 'initialization' stamp: 'RMV 1/31/2025 18:35:54'!
 initialize
 	| ageInput ageRow column greetingLabel nameInput nameRow |
 	
@@ -72,11 +25,12 @@ initialize
 	
 	greetingLabel := LabelMorph contents: ''.
 		
-	nameInput := TextInputMorph withModel: (TextModel withText: '').
+	nameInput := TextModelMorph withModel: (TextModel withText: '').
+	nameInput scroller tabToFocus: false.
 	nameInput emptyTextDisplayMessage: 'Enter your name'.
 	
 	"Update greetingLabel every time the contents of nameInput changes."
-	nameInput onChange: [
+	nameInput keystrokeAction: [ :evt |
 		| name |
 		
 		name := nameInput text.
@@ -86,7 +40,8 @@ initialize
 		).
 	].
 	
-	ageInput := TextInputMorph withModel: (TextModel withText: '').
+	ageInput := TextModelMorph withModel: (TextModel withText: '').
+	ageInput scroller tabToFocus: false.
 
 	"Don't warn the user that changes have not been saved when the window is closed."
 	nameInput askBeforeDiscardingEdits: false.
@@ -143,42 +98,3 @@ worldMenuOptions
 			#balloonText -> 'Opens a window where you can greet yourself'.
 		} asDictionary
 	}`! !
-
-!InnerTextNoTabMorph methodsFor: 'as yet unclassified' stamp: 'RMV 1/30/2025 15:52:45'!
-onChange: aBlock
-	"Set a block to evaluate every time the contents changes."
-
-	changeBlock := aBlock! !
-
-!InnerTextNoTabMorph methodsFor: 'as yet unclassified' stamp: 'RMV 1/30/2025 15:50:25'!
-processKeystrokeEvent: evt
-	"This was copied from the same method in InnerTextMorph
-	and was modified to not process tab key events
-	so they can be used to move focus to another morph."
-
-	(acceptOn = #enter and: [evt isReturnKey]) ifTrue: [^ self acceptContents].
-
-	self pauseBlinking.
-
-	"Return - check for special action"
-	evt isReturnKey ifTrue: [
-		self crAction ifNotNil: [ :action |
-			^action value ]].
-
-	"Esc - check for special action"
-	evt isEsc ifTrue: [			
-		self escAction ifNotNil: [ :action |
-			^action value ]].
-
-	evt keyValue = 9 ifFalse: [ "skips processing tab key"
-		self handleInteraction: [
-			editor processKeystrokeEvent: evt.
-			changeBlock ifNotNil: [ changeBlock value ].
-		].
-	].
-	
-	(owner is: #ScrollPane) ifTrue: [
-		owner scrollSelectionIntoView ].
-
-	"Only accept (on any) if we have unaccepted edits, otherwise the morph will flash."
-	(hasUnacceptedEdits and: [ acceptOn == #any ]) ifTrue: [ self acceptContents ].! !
